@@ -1,8 +1,8 @@
 #include <stm32f3xx_hal.h>
 #include "board.hpp"
-#include "./servo_control.hpp"
 #include "../../include/protocol/_protocol.hpp"
 #include "../../include/control/live_control.hpp"
+#include "./motor_control.hpp"
 asm(".global _printf_float");
 const uint16_t CONTROL_TERM_MS = 10;
 
@@ -14,39 +14,38 @@ const uint16_t CONTROL_TERM_MS = 10;
 
 int main()
 {
-    Board board(ServoPwm::Param::CAN_BASE_ID);
+    Board board(Motor::Param::CAN_BASE_ID);
     LiveControl ping(CONTROL_TERM_MS, board.can_id, &GlobalInterface::can1);
-    PwmServoModel servo_control(board.pwms);
-    PwmServoTest servo_test(board.buttons);
+    MotorControl motor_control(CONTROL_TERM_MS, board.motors);
+    MotorTest motor_test(board.buttons, 0.3f);
     /*================================
     ロジックの初期化
     ==================================*/
     HAL_Delay(100);
     const bool DEBUG_MODE = (board.buttons[0]->getState() && board.buttons[1]->getState());
-    printf("PWM Servo V2.0 :: CAN ID = %d\n", board.can_id);
+    printf("MotorDriver V3.0 :: CAN ID = %d\n", board.can_id);
     
-#ifdef NORMAL_RUN// 通常モード実装    
+    EPB::Can epb_decoder;
+
+#ifdef NORMAL_RUN// 通常モード実装
     while (!DEBUG_MODE)
     {
         // 実行点滅
         board.leds[0]->flash(20);
         int16_t margin_ms = board.waitInterval(CONTROL_TERM_MS);
-
+        
         // CAN受信メッセージ処理
         CanMessage rcv_msg;
         while (GlobalInterface::can_buff.get(rcv_msg)){
             board.leds[1]->flash(6);
-            if (ServoPwm::Can::isMe(rcv_msg, board.can_id)){
+            if (Motor::Can::isMe(rcv_msg, board.can_id)){
                 board.leds[2]->flash(6);
-                servo_control.setControl(rcv_msg);
+                motor_control.setControl(rcv_msg);
             }
         }
 
-        // 各種更新処理
-        ping.update(CONTROL_TERM_MS - margin_ms, board.power->getState());
-        servo_control.update(CONTROL_TERM_MS);
-        
-        printf("margin: %dms\n", margin_ms);
+        ping.update(CONTROL_TERM_MS - margin_ms);
+        motor_control.update();
     }
 #endif
 
@@ -54,50 +53,51 @@ int main()
     printf("Start Standalone Debug\n");
     while (1)
     {           
-        CanMessage p1,p2;
-        servo_test.genMsg(board.can_id, p1, p2);
-        servo_control.setControl(p1);
-        servo_control.setControl(p2);
-        servo_control.update(CONTROL_TERM_MS);
+        CanMessage p1;
+        motor_test.update(board.can_id, p1);
+        motor_control.setControl(p1);
+        motor_control.update();
         board.leds[1]->flash(2);
         board.leds[2]->flash(2);
         int16_t margin_ms = board.waitInterval(CONTROL_TERM_MS);
+        // printf("port0Counter: %d => %d ; margin: %dms\n", servo_control.getCounter(0), servo_control.getCounterCurrent(0), margin_ms);
     }
 #endif
 #ifdef DEBUG_CAN_RECEIVER // CAN受信型デバッグモード(動作)
-    uint16_t can_id = ServoPwm::Param::CAN_BASE_ID;
-    
+    uint16_t can_id = Motor::Param::CAN_BASE_ID;
     printf("Start CAN Receiver Debug\n");
+
     while (1)
     {
         // 実行点滅
         board.leds[0]->flash(5);
+        int16_t margin_ms = board.waitInterval(CONTROL_TERM_MS);
+        
+        // CAN受信メッセージ処理
         CanMessage rcv_msg;
         while (GlobalInterface::can_buff.get(rcv_msg)){
             board.leds[1]->flash(6);
-            if (ServoPwm::Can::isMe(rcv_msg, can_id)){
+            if (Motor::Can::isMe(rcv_msg, can_id)){
                 board.leds[2]->flash(6);
-                servo_control.setControl(rcv_msg);
+                motor_control.setControl(rcv_msg);
             } else{
                 printf("                    ElseID: %d\n", rcv_msg.id);
             }
         }
-        servo_control.update(CONTROL_TERM_MS);
-        int16_t margin_ms = board.waitInterval(CONTROL_TERM_MS);
-        // printf("port0Counter: %d => %d ; margin: %dms\n", servo_control.getCounter(0), servo_control.getCounterCurrent(0), margin_ms);
+
+        motor_control.update();
     }
 #endif
 #ifdef DEBUG_CAN_SENDER // CAN送信型デバッグモード(非動作)
     printf("Start CAN Sender Debug\n");
     while (1)
     {           
-        CanMessage p1,p2;
-        servo_test.genMsg(0, p1, p2);
+        // デバッグモード
+        CanMessage p1;
+        motor_test.update(0, p1);
         GlobalInterface::can1.send(p1);
-        GlobalInterface::can1.send(p2);
         board.leds[1]->flash(2);
         board.leds[2]->flash(2);
-        printf("Counter: %d, ", servo_test.getCounter());
         int16_t margin_ms = board.waitInterval(CONTROL_TERM_MS);
         printf("margin: %dms\n", margin_ms);
     }

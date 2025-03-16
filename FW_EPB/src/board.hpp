@@ -1,6 +1,7 @@
 #pragma once
 #define CAN1
-#define UART1
+#define UART1DMA
+#define UART2
 #include <stm32f3xx_hal.h>
 #include "../../include/dev/F3/clock.h"
 #include "../../include/dev/F3/interface.hpp"
@@ -23,50 +24,61 @@ private:
         __HAL_RCC_TIM2_CLK_ENABLE();
         __HAL_RCC_TIM3_CLK_ENABLE();
         __HAL_RCC_USART1_CLK_ENABLE();
+        __HAL_RCC_USART2_CLK_ENABLE();
         __HAL_RCC_CAN1_CLK_ENABLE();
         __HAL_RCC_GPIOA_CLK_ENABLE();
         __HAL_RCC_GPIOB_CLK_ENABLE();
         __HAL_RCC_GPIOF_CLK_ENABLE();
+        __HAL_RCC_DMA1_CLK_ENABLE();
     }
 
 public:
     uint16_t can_id;
     Button* buttons[2];
     Led* leds[3];
-    GpioIN* power;
-    Timer* tims[2];
-    Pwm* pwms[8];
+    Led* leds_status[3];
+    GpioIN* is_epb_phisic;
+    GpioIN* is_epb_relay;
+    GpioIN* is_killed;
+    GpioOut* epb_soft;
 
     // ボード初期化用コンストラクタ
     Board(uint16_t can_id_base){
         // CAN ID定義
-        can_id = can_id_base + CAN_CHILD_ID;
+        can_id = 0;
         // システム初期化
         HAL_Init();
         SystemClockConfig();
         clockEnable();
-        // 各種機能初期化
+        // 通常処理用ディスプレイ
+        buttons[0] = new Button(GPIOB, GPIO_PIN_7);
+        buttons[1] = new Button(GPIOB, GPIO_PIN_5);
         leds[0] = new Led(GPIOB, GPIO_PIN_3);
         leds[1] = new Led(GPIOB, GPIO_PIN_4);
         leds[2] = new Led(GPIOB, GPIO_PIN_6);
+        // 状態表示
+        leds_status[0] = new Led(GPIOA, GPIO_PIN_5);
+        leds_status[1] = new Led(GPIOA, GPIO_PIN_6);
+        leds_status[2] = new Led(GPIOA, GPIO_PIN_7);
+        // 非常停止フィードバック・非常停止出力
+        is_killed = new GpioIN(GPIOA, GPIO_PIN_4);
+        is_epb_phisic = new GpioIN(GPIOA, GPIO_PIN_0);
+        is_epb_relay = new GpioIN(GPIOA, GPIO_PIN_1);
+        epb_soft = new GpioOut(GPIOA, GPIO_PIN_2, 1);
+        
+        
+
         leds[0]->on();
-        buttons[0] = new Button(GPIOB, GPIO_PIN_7);
-        buttons[1] = new Button(GPIOB, GPIO_PIN_5);
-        power = new GpioIN(GPIOA, GPIO_PIN_8);
-        tims[0] = new Timer(TIM2, 31);
-        tims[1] = new Timer(TIM3, 31);
-        pwms[0] = new Pwm(tims[0], TIM_CHANNEL_1, GPIOA, GPIO_PIN_0);
-        pwms[1] = new Pwm(tims[0], TIM_CHANNEL_2, GPIOA, GPIO_PIN_1);
-        pwms[2] = new Pwm(tims[0], TIM_CHANNEL_3, GPIOA, GPIO_PIN_2);
-        pwms[3] = new Pwm(tims[0], TIM_CHANNEL_4, GPIOA, GPIO_PIN_3);
-        pwms[4] = new Pwm(tims[1], TIM_CHANNEL_2, GPIOA, GPIO_PIN_4);
-        pwms[5] = new Pwm(tims[1], TIM_CHANNEL_1, GPIOA, GPIO_PIN_6);
-        pwms[6] = new Pwm(tims[1], TIM_CHANNEL_3, GPIOB, GPIO_PIN_0);
-        pwms[7] = new Pwm(tims[1], TIM_CHANNEL_4, GPIOB, GPIO_PIN_1);
         leds[1]->on();
         // インターフェイスの初期化
 #ifdef UART1
         GlobalInterface::debug_port.init();
+#endif
+#ifdef UART1DMA
+        GlobalInterface::debug_port.init();
+#endif
+#ifdef UART2
+        GlobalInterface::dma_port.init();
 #endif
 #ifdef CAN1
         GlobalInterface::can1.init(leds[1], leds[2]);

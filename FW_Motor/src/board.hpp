@@ -5,6 +5,7 @@
 #include "../../include/dev/F3/clock.h"
 #include "../../include/dev/F3/interface.hpp"
 #include "../../include/dev/io.hpp"
+#include "./motor_control.hpp"
 
 #ifndef CAN_CHILD_ID
 #define CAN_CHILD_ID 15
@@ -32,10 +33,9 @@ private:
 public:
     uint16_t can_id;
     Button* buttons[2];
-    Led* leds[3];
-    GpioIN* power;
+    Led* leds[4];
     Timer* tims[2];
-    Pwm* pwms[8];
+    MotorPort* motors[2];
 
     // ボード初期化用コンストラクタ
     Board(uint16_t can_id_base){
@@ -46,24 +46,24 @@ public:
         SystemClockConfig();
         clockEnable();
         // 各種機能初期化
-        leds[0] = new Led(GPIOB, GPIO_PIN_3);
-        leds[1] = new Led(GPIOB, GPIO_PIN_4);
-        leds[2] = new Led(GPIOB, GPIO_PIN_6);
-        leds[0]->on();
-        buttons[0] = new Button(GPIOB, GPIO_PIN_7);
-        buttons[1] = new Button(GPIOB, GPIO_PIN_5);
-        power = new GpioIN(GPIOA, GPIO_PIN_8);
-        tims[0] = new Timer(TIM2, 31);
-        tims[1] = new Timer(TIM3, 31);
-        pwms[0] = new Pwm(tims[0], TIM_CHANNEL_1, GPIOA, GPIO_PIN_0);
-        pwms[1] = new Pwm(tims[0], TIM_CHANNEL_2, GPIOA, GPIO_PIN_1);
-        pwms[2] = new Pwm(tims[0], TIM_CHANNEL_3, GPIOA, GPIO_PIN_2);
-        pwms[3] = new Pwm(tims[0], TIM_CHANNEL_4, GPIOA, GPIO_PIN_3);
-        pwms[4] = new Pwm(tims[1], TIM_CHANNEL_2, GPIOA, GPIO_PIN_4);
-        pwms[5] = new Pwm(tims[1], TIM_CHANNEL_1, GPIOA, GPIO_PIN_6);
-        pwms[6] = new Pwm(tims[1], TIM_CHANNEL_3, GPIOB, GPIO_PIN_0);
-        pwms[7] = new Pwm(tims[1], TIM_CHANNEL_4, GPIOB, GPIO_PIN_1);
-        leds[1]->on();
+        
+        leds[0] = new Led(GPIOA, GPIO_PIN_0);
+        leds[1] = new Led(GPIOA, GPIO_PIN_4);
+        leds[2] = new Led(GPIOA, GPIO_PIN_5);
+        leds[3] = new Led(GPIOA, GPIO_PIN_6);
+        buttons[0] = new Button(GPIOB, GPIO_PIN_6);
+        buttons[1] = new Button(GPIOB, GPIO_PIN_7);
+        tims[0] = new Timer(TIM2, 0);
+        tims[1] = new Timer(TIM3, 0);
+        // Motor1
+        motors[0] = new MotorPort(
+            new Pwm(tims[0], TIM_CHANNEL_3, GPIOA, GPIO_PIN_2),
+            new Pwm(tims[0], TIM_CHANNEL_4, GPIOA, GPIO_PIN_3)
+        );
+        motors[1] = new MotorPort(
+            new Pwm(tims[1], TIM_CHANNEL_3, GPIOB, GPIO_PIN_0),
+            new Pwm(tims[1], TIM_CHANNEL_4, GPIOB, GPIO_PIN_1)
+        );
         // インターフェイスの初期化
 #ifdef UART1
         GlobalInterface::debug_port.init();
@@ -72,7 +72,6 @@ public:
         GlobalInterface::can1.init(leds[1], leds[2]);
 #endif
 
-        leds[2]->on();
     }
 
 public:

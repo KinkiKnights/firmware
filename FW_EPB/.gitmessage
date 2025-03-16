@@ -1,0 +1,25 @@
+::
+
+# ==================== Format ====================
+# [:emoji:] [Prefix]: [Subject]
+#
+# [Body]
+#
+# [Footer]
+# ==================== Emoji (Prefix) ====================
+# ✨  :sparkles: 新機能の実装（Feature）
+# 👍  :+1: 機能の修正 (Update)
+# 🗑️  :wastebasket: 削除(Remove, Delete)
+# 🐛  :bug: バグの修正 (Fix)
+# ♻️  :recycle: リファクタリング(Refactor, Rename, Move)
+# ✏️  :pencil2: タイプミスなどの修正 (Typo)
+# 🔉  :sound: ログの追加 (Add-logs)
+# 🔇  :mute: ログの削除 (Remove-logs)
+# 📚  :books: ドキュメントの変更 (Document)
+# 🎨  :art: デザインUI/UXの変更 (Accessibility)
+# 🐎  :horse: パフォーマンスの改善 (Improve-performance)
+# 👮  :cop: セキュリティ関連の改善 (Improve-security)
+# 🔧  :wrench: ツール (Tools)
+# 🚨  :rotating_light: テスト (Tests)
+# 🚧  :construction: WIP(Work In Progress)
+# 🔖  :bookmark: バージョンタグ (Version-tag)
