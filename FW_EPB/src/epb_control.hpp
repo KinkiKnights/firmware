@@ -10,6 +10,7 @@
 class EpbModel{
 private:
     bool is_epb_soft = false;
+    bool is_epb_browser = true;
     bool is_epb_phisy = false;
     bool is_epb_all = false;
     bool is_killed = false;
@@ -67,6 +68,12 @@ private:
                 if (success){
                     is_rcv = true;
                     printf("\nRCV_CMD ==>%d, %d, %d, %d, %d, %d, %d", cmd[0], cmd[1], cmd[2], cmd[3], cmd[4], cmd[5], cmd[6]);
+                    // この信号のみ0時true
+                    if (cmd[0] | 0b1){
+                        is_epb_browser = true;
+                    } else {
+                        is_epb_browser = false;
+                    }
                     board->leds_status[0]->toggle();
                 } else {
                     printf("Wrong exchange...\n");
@@ -146,7 +153,7 @@ public:
         updateClient(board);
 
         // 出力の変更
-        setLed(is_epb_soft && !is_killed, board->epb_soft);
+        setLed(is_epb_soft && !is_killed && is_epb_browser, board->epb_soft);
         
 
         if (is_killed)
