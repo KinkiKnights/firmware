@@ -64,7 +64,7 @@ public:
         is_killed = new GpioIN(GPIOA, GPIO_PIN_4);
         is_epb_phisic = new GpioIN(GPIOA, GPIO_PIN_0);
         is_epb_relay = new GpioIN(GPIOA, GPIO_PIN_1);
-        epb_soft = new GpioOut(GPIOA, GPIO_PIN_2, 1);
+        epb_soft = new GpioOut(GPIOA, GPIO_PIN_2);
         
         
 

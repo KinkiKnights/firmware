@@ -9,7 +9,7 @@
 
 class EpbModel{
 private:
-    bool is_epb_soft = false;
+    bool is_epb_soft = true;
     bool is_epb_browser = true;
     bool is_epb_phisy = false;
     bool is_epb_all = false;
@@ -69,10 +69,10 @@ private:
                     is_rcv = true;
                     printf("\nRCV_CMD ==>%d, %d, %d, %d, %d, %d, %d", cmd[0], cmd[1], cmd[2], cmd[3], cmd[4], cmd[5], cmd[6]);
                     // この信号のみ0時true
-                    if (cmd[0] | 0b1){
-                        is_epb_browser = true;
-                    } else {
+                    if (cmd[0] & 0b1){
                         is_epb_browser = false;
+                    } else {
+                        is_epb_browser = true;
                     }
                     board->leds_status[0]->toggle();
                 } else {
