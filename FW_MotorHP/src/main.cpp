@@ -19,27 +19,26 @@ int main()
 {
     Board board(Motor::Param::CAN_BASE_ID);
     
-    while (1)
-    {
-        // 実行点滅
-        board.leds[0]->flash(20);
-        board.leds[1]->flash(5);
-        int16_t margin_ms = board.waitInterval(CONTROL_TERM_MS);
-        printf("Hello\n");
-    }
+    // while (1)
+    // {
+    //     // 実行点滅
+    //     board.leds[0]->flash(20);
+    //     board.leds[1]->flash(5);
+    //     int16_t margin_ms = board.waitInterval(CONTROL_TERM_MS);
+    //     printf("Hello\n");
+    // }
 //     LiveControl ping(CONTROL_TERM_MS, board.can_id, &GlobalInterface::can1);
-//     MotorControl motor_control0(CONTROL_TERM_MS, board.motors);
-//     MotorControl motor_control1(CONTROL_TERM_MS, &(board.motors[2]));
-//     MotorTest motor_test(board.buttons, 0.2f);
+    MotorControl motor_control0(CONTROL_TERM_MS, board.motors);
+    MotorControl motor_control1(CONTROL_TERM_MS, &(board.motors[2]));
+    MotorTest motor_test(0.3f);
     
-//     /*================================
-//     ロジックの初期化
-//     ==================================*/
-//     HAL_Delay(100);
-//     const bool DEBUG_MODE = (board.buttons[0]->getState() && board.buttons[1]->getState());
-//     printf("MotorDriverHipower V1.0 :: CAN ID = %d , %d\n", board.can_id, board.can_id + 1);
+    /*================================
+    ロジックの初期化
+    ==================================*/
+    HAL_Delay(100);
+    printf("MotorDriverHipower V1.0 :: CAN ID = %d , %d\n", board.can_id, board.can_id + 1);
     
-//     EPB::Can epb_decoder;
+    // EPB::Can epb_decoder;
 
 
 // #ifdef NORMAL_RUN// 通常モード実装
@@ -75,20 +74,20 @@ int main()
 // #endif
 
 // #ifdef DEBUG_STANDALONE // 自己完結型デバッグモード(通常)
-//     printf("Start Standalone Debug\n");
-//     while (1)
-//     {           
-//         CanMessage p1;
-//         motor_test.update(board.can_id, p1);
-//         motor_control0.setControl(p1);
-//         motor_control1.setControl(p1);
-//         motor_control0.update();
-//         motor_control1.update();
-//         board.leds[1]->flash(2);
-//         board.leds[2]->flash(2);
-//         int16_t margin_ms = board.waitInterval(CONTROL_TERM_MS);
-//         // printf("port0Counter: %d => %d ; margin: %dms\n", servo_control.getCounter(0), servo_control.getCounterCurrent(0), margin_ms);
-//     }
+    printf("Start Standalone Debug\n");
+    while (1)
+    {           
+        CanMessage p1;
+        motor_test.update(board.can_id, p1);
+        motor_control0.setControl(p1);
+        motor_control1.setControl(p1);
+        motor_control0.update();
+        motor_control1.update();
+        board.leds[0]->flash(2);
+        board.leds[1]->flash(2);
+        int16_t margin_ms = board.waitInterval(CONTROL_TERM_MS);
+        // printf("port0Counter: %d => %d ; margin: %dms\n", servo_control.getCounter(0), servo_control.getCounterCurrent(0), margin_ms);
+    }
 // #endif
 // #ifdef DEBUG_CAN_RECEIVER // CAN受信型デバッグモード(動作)
 //     uint16_t can_id = Motor::Param::CAN_BASE_ID;

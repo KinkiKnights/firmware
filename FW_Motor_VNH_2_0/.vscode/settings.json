@@ -1,0 +1,24 @@
+{
+    "files.associations": {
+        "gpio.h": "c",
+        "stm32f3xx_hal_gpio_ex.h": "c",
+        "stm32f3xx_hal_gpio.h": "c",
+        "stm32f3xx_hal_usart.h": "c",
+        "stm32f3xx_hal_i2c.h": "c",
+        "stm32f3xx_hal_conf.h": "c",
+        "stm32f3xx_hal_uart.h": "c",
+        "board.h": "c",
+        "usart.h": "c",
+        "stm32f3xx_hal.h": "c",
+        "clock.h": "c",
+        "byte_serializer.h": "c",
+        "can_serializer.h": "c",
+        "live_logic.h": "c",
+        "can.h": "c",
+        "live.h": "c",
+        "pwm_servo.h": "c",
+        "uart.h": "c",
+        "epb.h": "c",
+        "init.h": "c"
+    }
+}

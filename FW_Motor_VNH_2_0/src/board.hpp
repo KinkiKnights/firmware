@@ -1,10 +1,10 @@
 #pragma once
-#define UART6
-#define F4_CPU
-
-#include "../../include/dev/F4/clock.h"
+#define CAN1
+#define UART1
+#include <stm32f3xx_hal.h>
+#include "../../include/dev/F3/clock.h"
+#include "../../include/dev/F3/interface.hpp"
 #include "../../include/dev/io.hpp"
-#include "../../include/dev/F4/interface_md.hpp"
 #include "./motor_control.hpp"
 
 #ifndef CAN_CHILD_ID
@@ -24,24 +24,20 @@ private:
         __HAL_RCC_TIM1_CLK_ENABLE();
         __HAL_RCC_TIM2_CLK_ENABLE();
         __HAL_RCC_TIM3_CLK_ENABLE();
-        __HAL_RCC_TIM8_CLK_ENABLE();
-        __HAL_RCC_TIM12_CLK_ENABLE();
+        __HAL_RCC_TIM15_CLK_ENABLE();
         __HAL_RCC_USART1_CLK_ENABLE();
         __HAL_RCC_CAN1_CLK_ENABLE();
-        __HAL_RCC_CAN2_CLK_ENABLE();
         __HAL_RCC_GPIOA_CLK_ENABLE();
         __HAL_RCC_GPIOB_CLK_ENABLE();
-        __HAL_RCC_GPIOC_CLK_ENABLE();
         __HAL_RCC_GPIOF_CLK_ENABLE();
     }
 
 public:
     uint16_t can_id;
     Button* buttons[2];
-    Led* leds[2];
-    Timer* tims[4];
-    MotorPort* motors[4];
-    EncoderTimer* encoder[2];
+    Led* leds[4];
+    Timer* tims[2];
+    MotorPort* motors[2];
 
     // ボード初期化用コンストラクタ
     Board(uint16_t can_id_base){
@@ -53,34 +49,30 @@ public:
         clockEnable();
         // 各種機能初期化
         
-        leds[0] = new Led(GPIOC, GPIO_PIN_13);
-        leds[1] = new Led(GPIOC, GPIO_PIN_14);
+        leds[0] = new Led(GPIOB, GPIO_PIN_3);
+        leds[1] = new Led(GPIOB, GPIO_PIN_4);
+        leds[2] = new Led(GPIOB, GPIO_PIN_6);
+        buttons[0] = new Button(GPIOB, GPIO_PIN_5);
+        buttons[1] = new Button(GPIOB, GPIO_PIN_7);
         tims[0] = new Timer(TIM2, 0);
-        tims[1] = new Timer(TIM3, 0);
-        tims[2] = new Timer(TIM8, 0);
-        tims[3] = new Timer(TIM12, 0);
-
 
         motors[0] = new MotorPort(
-            new Pwm(tims[1], TIM_CHANNEL_3, GPIOB, GPIO_PIN_0),
-            new Pwm(tims[2], TIM_CHANNEL_3, GPIOC, GPIO_PIN_8)
+            new Pwm(tims[0], TIM_CHANNEL_1, GPIOA, GPIO_PIN_0),
+            new Led(GPIOA, GPIO_PIN_1),
+            new Led(GPIOA, GPIO_PIN_2)
         );
         motors[1] = new MotorPort(
-            new Pwm(tims[1], TIM_CHANNEL_4, GPIOB, GPIO_PIN_1),
-            new Pwm(tims[2], TIM_CHANNEL_4, GPIOC, GPIO_PIN_9)
+            new Pwm(tims[0], TIM_CHANNEL_4, GPIOA, GPIO_PIN_3),
+            new Led(GPIOA, GPIO_PIN_4),
+            new Led(GPIOA, GPIO_PIN_5)
         );
-        motors[2] = new MotorPort(
-            new Pwm(tims[1], TIM_CHANNEL_2, GPIOA, GPIO_PIN_7),
-            new Pwm(tims[0], TIM_CHANNEL_3, GPIOB, GPIO_PIN_10)
-        );
-        motors[3] = new MotorPort(
-            new Pwm(tims[3], TIM_CHANNEL_2, GPIOB, GPIO_PIN_15),
-            new Pwm(tims[0], TIM_CHANNEL_4, GPIOB, GPIO_PIN_2)
-        );
-// #ifdef UART6
+
+#ifdef UART1
         GlobalInterface::debug_port.init();
-// #endif
-//         GlobalInterface::can2.init(leds[1], leds[2]);
+#endif
+#ifdef CAN1
+        GlobalInterface::can1.init(leds[1], leds[2]);
+#endif
 
     }
 

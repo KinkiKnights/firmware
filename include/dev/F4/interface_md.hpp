@@ -23,7 +23,7 @@ public:
         GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
         // 複数使用の場合は下記を変更
         if (port == USART1){
-            GPIO_InitStruct.Pin = GPIO_PIN_6|GPIO_PIN_7;
+            GPIO_InitStruct.Pin = GPIO_PIN_9|GPIO_PIN_10;
             GPIO_InitStruct.Alternate = GPIO_AF7_USART1;
             HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
         }

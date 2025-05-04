@@ -20,6 +20,8 @@ public:
             PWM_A->setDuty(0.f);
             PWM_B->setDuty(-duty);
         }
+        
+        printf("Debug Duty->%f\n", duty);
     }
 
     MotorPort(Pwm* _PWM_A, Pwm* _PWM_B)
@@ -71,34 +73,21 @@ public:
 
 class MotorTest{
     Motor::Can encoder;
-    Button** buttons;
     float test_duty;
-    uint8_t cc = 0;
+    int32_t cc = 500;
 public:
-    MotorTest(Button** _buttons, float _test_duty){
-        buttons = _buttons;
+    MotorTest(float _test_duty){
         test_duty = _test_duty;
     }
 
     void update(uint8_t child_id, CanMessage& msg){
-        cc= (cc+1)% 10;
-        if(buttons[0]->getState()){
-            encoder.ctrl_mode[0] = Motor::DEF::DUTY;
-            encoder.ctrl_mode[1] = Motor::DEF::DUTY;
-            encoder.setDuty(test_duty,0);
-            encoder.setDuty(test_duty,1);
-            printf("Debug Duty->%f\n", test_duty);
-        } else if(buttons[1]->getState()){
-            encoder.ctrl_mode[0] = Motor::DEF::DUTY;
-            encoder.ctrl_mode[1] = Motor::DEF::DUTY;
-            encoder.setDuty(-test_duty,0);
-            encoder.setDuty(-test_duty,1);
-            printf("Debug Duty->%f\n", -test_duty);
-        } else {
-            encoder.ctrl_mode[0] = Motor::DEF::FREE;
-            encoder.ctrl_mode[1] = Motor::DEF::FREE;
-            printf("Debug Free\n");
-        }
+        cc= (cc+1)% 1000;
+        float out = test_duty * (cc - 500) / 500.f;
+        encoder.ctrl_mode[0] = Motor::DEF::DUTY;
+        encoder.ctrl_mode[1] = Motor::DEF::DUTY;
+        encoder.setDuty(out, 0);
+        encoder.setDuty(out,1);
+        printf("Debug Duty->%f\n", -out);
         msg = encoder.encode(child_id);
     }
 

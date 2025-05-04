@@ -71,18 +71,20 @@ namespace BoardManager
             // CANの送信処理
             GlobalInterface::can1.send(encoder_emg.encode(is_safety));
             // Hat通信送信処理
-            if (count++ < 10) return;
+            // if (count++ < 10) return;
             count = 0;
             uint8_t frames[11];
             frames[0] = EPBFeedBack::Param::SERIAL_ID;
-            frames[1] = 10;
-            for (uint8_t idx = 0; idx < 7; idx++){
+            frames[1] = 12;
+            for (uint8_t idx = 0; idx < 8; idx++){
                 frames[idx + 2] = cmd[idx];
             }
-            frames[9] = is_safety_fb;
-            frames[10] = hp;
-            frames[11] = global_board->limit->getState();
-            sendFrame(frames, 12);
+            printf("%d, %d, %d, %d, %d, %d, %d, %d\n", cmd[0], cmd[1], cmd[2], cmd[3], cmd[4], cmd[5], cmd[6], cmd[7]);
+            frames[11] = is_safety_fb;
+            frames[12] = hp;
+            frames[13] = global_board->limit->getState();
+            printf("Limit = %d", global_board->limit->getState());
+            sendFrame(frames, 14);
 
             
         }

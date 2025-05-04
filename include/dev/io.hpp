@@ -140,8 +140,12 @@ private:
         htim.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
         htim.Init.RepetitionCounter = 0;
         if (HAL_TIM_Base_Init(&htim) != HAL_OK)Error_Handler();
-
+#ifdef F4_CPU
+        if (tim == TIM1 || tim == TIM2 || tim == TIM3 || tim == TIM8 || tim == TIM12){
+#endif
+#ifndef F4_CPU
         if (tim == TIM1 || tim == TIM2 || tim == TIM3){
+#endif
             // 設定インスタンス作成
             TIM_ClockConfigTypeDef sClockSourceConfig = {0};
             TIM_MasterConfigTypeDef sMasterConfig = {0};
@@ -157,8 +161,13 @@ private:
             sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
             if (HAL_TIMEx_MasterConfigSynchronization(&htim, &sMasterConfig) != HAL_OK)Error_Handler();        
         }
-
+#ifdef F4_CPU
+        if (tim == TIM1 || tim == TIM8){
+#endif
+#ifndef F4_CPU
         if (tim == TIM1){
+#endif
+        
             TIM_BreakDeadTimeConfigTypeDef sBreakDeadTimeConfi = {0};
             sBreakDeadTimeConfi.OffStateRunMode = TIM_OSSR_DISABLE;
             sBreakDeadTimeConfi.OffStateIDLEMode = TIM_OSSI_DISABLE;
@@ -232,6 +241,14 @@ private:
         }else if (htim->Instance == TIM3){
             GPIO_InitStruct.Alternate = GPIO_AF2_TIM3;
         }
+#ifdef F4_CPU
+        else if (htim->Instance == TIM8){
+            GPIO_InitStruct.Alternate = GPIO_AF3_TIM8;
+        }
+        else if (htim->Instance == TIM12){
+            GPIO_InitStruct.Alternate = GPIO_AF9_TIM12;
+        }
+#endif
 #ifndef F4_CPU
         else if (htim->Instance == TIM15){
             GPIO_InitStruct.Alternate = GPIO_AF9_TIM15;

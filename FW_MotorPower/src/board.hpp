@@ -49,7 +49,6 @@ public:
         SystemClockConfig();
         clockEnable();
         // 各種機能初期化
-        
         leds[0] = new Led(GPIOA, GPIO_PIN_0);
         leds[1] = new Led(GPIOA, GPIO_PIN_4);
         leds[2] = new Led(GPIOA, GPIO_PIN_5);

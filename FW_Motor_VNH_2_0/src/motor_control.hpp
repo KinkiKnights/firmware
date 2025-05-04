@@ -50,6 +50,18 @@ class MotorControl{
     Motor::Can decoder;
     uint16_t wd_counter = 0;
 
+    void updateDuty(){
+
+    }
+
+    void updateSpd(){
+        
+    }
+
+    void updatePos(){
+        
+    }
+
 public:
     MotorControl(uint16_t _term_ms, MotorPort** _motors)
     : CONTROL_TERM(_term_ms)

@@ -27,12 +27,14 @@ private:
         num  = 0;
         if (MSB[0] > 0x2f && MSB[0] < 0x3a) num = MSB[0] - 0x30;
         else if (MSB[0] > 0x40 && MSB[0] < 0x47) num = MSB[0] - 0x41 + 0x0A;
+        else if (MSB[0] > 0x60 && MSB[0] < 0x67) num = MSB[0] - 0x61 + 0x0A;
         else success = false;
         
         num = num << 4;
 
         if (MSB[1] > 0x2f && MSB[1] < 0x3a) num += MSB[1] - 0x30;
         else if (MSB[1] > 0x40 && MSB[1] < 0x47) num += MSB[1] - 0x41 + 0x0A;
+        else if (MSB[1] > 0x60 && MSB[1] < 0x67) num += MSB[1] - 0x61 + 0x0A;
         else success = false;
 
         return success;
@@ -153,7 +155,7 @@ public:
         updateClient(board);
 
         // 出力の変更
-        setLed(is_epb_soft && !is_killed && is_epb_browser, board->epb_soft);
+        setLed(is_epb_soft && is_epb_browser, board->epb_soft);
         
 
         if (is_killed)
