@@ -56,7 +56,7 @@ int main()
         CanMessage rcv_msg;
         while (GlobalInterface::can_buff.get(rcv_msg)){
             board.leds[1]->flash(6);
-            if (Motor::Can::isMe(rcv_msg, board.can_id)){
+            if (Motor::Can::isBoardCanID(rcv_msg, board.can_id)){
                 board.leds[2]->flash(6);
                 motor_control.setControl(rcv_msg);
                 
@@ -99,7 +99,7 @@ int main()
         CanMessage rcv_msg;
         while (GlobalInterface::can_buff.get(rcv_msg)){
             board.leds[1]->flash(6);
-            if (Motor::Can::isMe(rcv_msg, can_id)){
+            if (Motor::Can::isBoardCanID(rcv_msg, can_id)){
                 board.leds[2]->flash(6);
                 motor_control.setControl(rcv_msg);
             } else{

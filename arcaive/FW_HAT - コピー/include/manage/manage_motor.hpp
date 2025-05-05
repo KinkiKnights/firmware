@@ -34,14 +34,14 @@ namespace BoardManager
         , can_child_id(child_id){}
 
         // CAN_ID確認
-        static int8_t isMeID(uint16_t& id){
+        static int8_t isBoardCanIDID(uint16_t& id){
             uint16_t child = id - MotorMessage::MOTOR_BASE_ID;
             if (0 <= child && child < MANAGER_NUM) return child;
             return -1;
         }
         
         // コマンド確認
-        static int8_t isMeCmd(uint8_t *frames){
+        static int8_t isBoardCanIDCmd(uint8_t *frames){
             uint8_t board_type = frames[0];
             uint8_t board_id = frames[1];
             if (board_type == Command::MotorControl::MOTOR_CTRL_CMD) return board_id;

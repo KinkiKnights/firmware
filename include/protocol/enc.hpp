@@ -25,7 +25,7 @@ namespace Encoder{
         //     else return 0xff;
         // }
 
-        // 他の基板に付随するため、isMe関数は存在しない。
+        // 他の基板に付随するため、isBoardCanID関数は存在しない。
         // 付随する基板側でフィルタする
 
     public: // メッセージエンコード・デコード

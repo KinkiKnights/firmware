@@ -39,13 +39,13 @@ namespace BoardManager
         , can_child_id(0){}
 
         // CAN_ID確認
-        static int8_t isMeID(uint16_t id){
+        static int8_t isBoardCanIDID(uint16_t id){
             if (id == EmergencyMessage::EMERGENCY_ID) return 0;
             return -1;
         }
 
         // コマンド確認
-        static int8_t isMeCmd(uint8_t *frames){
+        static int8_t isBoardCanIDCmd(uint8_t *frames){
             uint8_t board_type = frames[0];
             if (board_type == Command::Emergency::EMERGENCY_CMD) return 0;
             return -1;

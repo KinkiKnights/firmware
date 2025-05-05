@@ -31,7 +31,7 @@ namespace BoardManager
         }
 
         // CAN_ID確認
-        static int8_t isMeCan(uint16_t& id){
+        static int8_t isBoardCanIDCan(uint16_t& id){
             uint16_t id_base = id & 0xFF0;
             if (id_base == ServoPwm::Param::CAN_BASE_ID) 
                 return id % 0X10;
@@ -39,7 +39,7 @@ namespace BoardManager
         }
 
         // コマンド確認
-        static int8_t isMeSerial(uint8_t *frames){
+        static int8_t isBoardCanIDSerial(uint8_t *frames){
             uint8_t board_type = frames[0];
             uint8_t board_id = frames[2];
             if (board_type == ServoPwm::Param::SERIAL_ID) return board_id;

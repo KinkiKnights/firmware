@@ -29,7 +29,7 @@ namespace ServoPwm{
          * @brief CAＮメッセージのIDが一致するかを確認する
          * @return 各基板側ファームからの利用が想定されている。
          */
-        inline static bool isMe(CanMessage& msg, uint16_t& id){
+        inline static bool isBoardCanID(CanMessage& msg, uint16_t& id){
             if (msg.id == id) return true;
             if (msg.id == (id + OFFSET_ID))return true;
             return false;

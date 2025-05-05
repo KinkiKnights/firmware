@@ -12,19 +12,10 @@ namespace EPB{
     struct Can{
     public: // ユーティリティ関数
         /**
-         * @brief CANのIDから子ＩＤを算出する
-         * @return 子ID。想定外子IDの場合は0xFFを返す。
-         **/
-        static uint8_t getChildNumber(CanMessage& msg){
-            if (msg.id == Param::CAN_BASE_ID) return 0;
-            else return 0xff;
-        }
-
-        /**
          * @brief CAＮメッセージのIDが一致するかを確認する
          * @return 各基板側ファームからの利用が想定されている。
          */
-        inline static bool isMe(CanMessage& msg, uint16_t& id){
+        inline static bool isBoardCanID(CanMessage& msg, uint16_t& id){
             if (msg.id == Param::CAN_BASE_ID) return true;
             return false;
         }

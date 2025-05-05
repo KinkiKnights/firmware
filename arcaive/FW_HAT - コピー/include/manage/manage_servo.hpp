@@ -34,14 +34,14 @@ namespace BoardManager
         }
 
         // CAN_ID確認
-        static int8_t isMeID(uint16_t& id){
+        static int8_t isBoardCanIDID(uint16_t& id){
             if (id < ServoMessage::SERVO_BASE_ID) return -1;
             if (id > ServoMessage::SERVO_BASE_ID + MANAGER_NUM) return -1;
             return id - ServoMessage::SERVO_BASE_ID;
         }
 
         // コマンド確認
-        static int8_t isMeCmd(uint8_t *frames){
+        static int8_t isBoardCanIDCmd(uint8_t *frames){
             uint8_t board_type = frames[0];
             uint8_t board_id = frames[2];
             if (board_type == Command::PwmServo::PWM_SERVO_CMD) return board_id;

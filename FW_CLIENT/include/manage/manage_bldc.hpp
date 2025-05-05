@@ -42,7 +42,7 @@ namespace BoardManager
          * @note ベース+マネージャ数以内にIDが収まっているかを判定する
          * @note 複数のIDがある場合はそれに対応する
          **/
-        static int8_t isMeCan(uint16_t& id){
+        static int8_t isBoardCanIDCan(uint16_t& id){
             uint16_t id_base = id & 0xFF0;
             if (id_base == Bldc::Param::CAN_BASE_ID) 
                 return id % 0x10;
@@ -54,7 +54,7 @@ namespace BoardManager
          * @return 該当する場合はchild_idを、非該当なら-1を返す
          * @note マネージャ数を超える場合は非該当判定
          */
-        static int8_t isMeSerial(uint8_t *frames){
+        static int8_t isBoardCanIDSerial(uint8_t *frames){
             uint8_t board_type = frames[0];
             uint8_t board_id = frames[2];
             if (board_type == Bldc::Param::SERIAL_ID && board_id < MANAGER_NUM) return board_id;

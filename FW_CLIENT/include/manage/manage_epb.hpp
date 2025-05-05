@@ -35,14 +35,14 @@ namespace BoardManager
         , can_child_id(0){}
 
         // CAN_ID確認
-        static int8_t isMeCan(uint16_t id){
+        static int8_t isBoardCanIDCan(uint16_t id){
             if (id == EPB::Param::CAN_BASE_ID) return 0;
             if (id == EPBFeedBack::Param::CAN_BASE_ID) return 0;
             return -1;
         }
 
         // コマンド確認(受信用なので、CMDのみ)
-        static int8_t isMeSerial(uint8_t *frames){
+        static int8_t isBoardCanIDSerial(uint8_t *frames){
             uint8_t board_type = frames[0];
             if (board_type == EPBFeedBack::Param::SERIAL_ID) return 0;
             return -1;

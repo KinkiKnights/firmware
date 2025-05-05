@@ -30,7 +30,7 @@ namespace BoardManager
         }
         template <class T>
         bool rcvLiveMsg(T** array, LivingMessage& msg){
-            int8_t child_id = T::isMeCan(msg.can_id);
+            int8_t child_id = T::isBoardCanIDCan(msg.can_id);
             if (child_id < 0) return false;
             if (child_id >= T::MANAGER_NUM) return false;
             array[child_id]->rcvLiving(msg);
@@ -38,7 +38,7 @@ namespace BoardManager
         }
         template <class T>
         bool rcvCanMsg(T** array, CanMessage& msg){
-            int8_t child_id = T::isMeCan(msg.id);
+            int8_t child_id = T::isBoardCanIDCan(msg.id);
             if (child_id < 0) return false;
             if (child_id >= T::MANAGER_NUM) return false;
             array[child_id]->rcvCan(msg);
@@ -46,7 +46,7 @@ namespace BoardManager
         }
         template <class T>
         bool rcvCmdMsg(T** array, uint8_t* frames){
-            int8_t child_id = T::isMeSerial(frames);
+            int8_t child_id = T::isBoardCanIDSerial(frames);
             if (child_id < 0) return false;
             if (child_id >= T::MANAGER_NUM) return false;
             array[child_id]->rcvCommand(frames);
