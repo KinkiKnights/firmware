@@ -121,7 +121,7 @@ namespace EncFeedBack{
     struct Can{
         uint8_t child_id;
     public:
-        uint16_t current_enc[2];
+        int32_t current_enc[2];
         
     public:
         inline CanMessage encode(){
@@ -165,7 +165,7 @@ namespace DutyFeedBack{
     struct Can{
         uint8_t child_id;
     public:
-        uint16_t current_output[2];
+        int16_t current_output[2];
         
     public:
         inline CanMessage encode(){
