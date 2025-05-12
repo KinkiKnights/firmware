@@ -1,5 +1,13 @@
-#pragma once
 #include <stdio.h>
+#include "./epb.hpp"
+#include "./live.hpp"
+#include "./pwm.hpp"
+#include "./ics.hpp"
+#include "./mtr.hpp"
+#include "./gm6020.hpp"
+
+#ifndef CAN_MSG
+#define CAN_MSG
 /*==========================================================
  * ============ CAN メッセージ定義
   ==========================================================*/
@@ -17,12 +25,9 @@ struct CanMessage
       port = 0;
     }
 
-    CanMessage(uint32_t _id,uint8_t _dlc,uint8_t *frame, bool isEx = false)
+    CanMessage(uint32_t _id,uint8_t _dlc, bool isEx = false)
     : isExtendedId(isEx), id(_id), dlc(_dlc){
       if (dlc > 8) dlc = 8;
-      for (uint8_t idx = 0; idx < dlc; idx++){
-        data[idx] = frame[idx];
-      }
       port = 0;
     }
 };
@@ -49,6 +54,21 @@ namespace CanCovert
     array[1] = (uint8_t)(val & 0xFF);
   }
 
+  inline int32_t array_2_int32(uint8_t *array){
+    uint32_t val = array[0];
+    val = (val << 8) + array[1];
+    val = (val << 8) + array[2];
+    val = (val << 8) + array[3];
+    return (int32_t)(val);
+  }
+
+  inline void int32_2_array(int32_t val, uint8_t *array){
+    array[0] = (uint8_t)((val >> 24) & 0xFF); 
+    array[1] = (uint8_t)((val >> 16) & 0xFF); 
+    array[2] = (uint8_t)((val >> 8) & 0xFF); 
+    array[3] = (uint8_t)(val & 0xFF);
+  }
+
   inline void array_2_uint12_4(uint16_t& val, uint8_t& sub, uint8_t *array){
     // バリデーション
     val = (array[0] & 0xF) + array[1];
@@ -66,3 +86,5 @@ namespace CanCovert
 
 
 } // namespace CanCovert
+
+#endif
