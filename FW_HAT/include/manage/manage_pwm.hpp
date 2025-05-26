@@ -12,36 +12,31 @@ namespace BoardManager
      * @brief サーボ基板の状態管理と通信管理を行う
      * @note 定期的に処理を実施し、通信を確認した基板に対してはデータ送信処理を行う。
      */
-    class IcsManager{
+    class PwmManager{
         // 基板情報
         const static uint8_t CONTROL_UNIT_MAX = 0xf;
-        const static uint8_t CONTROL_UNIT_PORT = 0x2;
-        const static uint8_t PORT_MAX = 0xf * 0x2;
-        const static uint8_t FEEDBACK_UNIT_MAX = 0x8;
-        const static uint8_t FEEDBACK_UNIT_PORT = 0x4;
+        const static uint8_t CONTROL_UNIT_PORT = 0x4;
+        const static uint8_t PORT_MAX = 0xf * 0x4;
 
         // コントロールはCAN側に基板実態を格納
-        IcsServo::Serial serial_decoder;
-        IcsServo::Can* control_model[CONTROL_UNIT_MAX];
+        PwmServo::Serial serial_decoder;
+        PwmServo::Can* control_model[CONTROL_UNIT_MAX];
         BoardLifeCycleW control_life[CONTROL_UNIT_MAX];
         // 返り値はシリアル側に基板実態を格納
-        IcsFeedBack::Can can_decoder;
-        IcsFeedBack::Serial* feedback_model[FEEDBACK_UNIT_MAX];
-        BoardLifeCycle feedback_life[FEEDBACK_UNIT_MAX];
+        PwmFeedBack::Can can_decoder;
+        PwmFeedBack::Serial* feedback_model[CONTROL_UNIT_MAX];
+        BoardLifeCycle feedback_life[CONTROL_UNIT_MAX];
         
         // 送信用バッファ
         uint8_t send_frame[256];
 
     public: // インターフェイス関数群
-        IcsManager(){
+        PwmManager(){
             // 基板実態の準備
             for (uint8_t child_idx = 0; child_idx < CONTROL_UNIT_MAX; child_idx++ ){
-                control_model[child_idx] = new IcsServo::Can(child_idx);
-            }
-            
-            for (uint8_t child_idx = 0; child_idx < FEEDBACK_UNIT_MAX; child_idx++ ){
-                feedback_model[child_idx] = new IcsFeedBack::Serial();
-                feedback_model[child_idx]->child_id = child_idx;            
+                control_model[child_idx] = new PwmServo::Can(child_idx);
+                feedback_model[child_idx] = new PwmFeedBack::Serial();
+                feedback_model[child_idx]->child_id = child_idx;
             }
         }
 
@@ -61,12 +56,12 @@ namespace BoardManager
             }
 
             // フィードバック送信処理
-            for (uint8_t board_idx = 0; board_idx < FEEDBACK_UNIT_MAX; board_idx++){
+            for (uint8_t board_idx = 0; board_idx < CONTROL_UNIT_MAX; board_idx++){
                 // ボードのライフサイクルがタイムオーバーしていたら更新処理を省略
                 if (!feedback_life[board_idx].update(update_ms)) continue;
                 
                 // フィードバックの生成処理
-                uint8_t dlc = board_fb[board_idx]->encode(send_frame);
+                uint8_t dlc = feedback_model[board_idx]->encode(send_frame);
                 sendFrame(send_frame, dlc);
             }
         }
@@ -95,7 +90,7 @@ namespace BoardManager
          */
         bool rcvCommand(uint8_t* msg){
             // コマンド種別を判別して無効なら処理終了
-            if (msg[0] != IcsServo::Serial::SERIAL_ID) return false;
+            if (msg[0] != PwmServo::Serial::SERIAL_ID) return false;
             
             // 有効ならデコード開始
             serial_decoder.decode(msg);
@@ -106,8 +101,8 @@ namespace BoardManager
                 if (port >= PORT_MAX) continue;
                 
                 // 制御インデックスの計算
-                uint8_t ctrl_idx = port / FEEDBACK_UNIT_PORT;
-                uint8_t port_idx = port % FEEDBACK_UNIT_PORT;
+                uint8_t ctrl_idx = port / CONTROL_UNIT_PORT;
+                uint8_t port_idx = port % CONTROL_UNIT_PORT;
                 // ライフサイクルの更新
                 control_life[ctrl_idx].set();
                 // 制御情報の格納
@@ -116,15 +111,14 @@ namespace BoardManager
             }
             return true;
         }
-
         /**
          * @brief Liveメッセージ受信関数
          * @note 情報を一元化してラズパイに送るため、デコードの二度手間を防ぐ目的
          */
         bool rcvLive(Live::Can& decode_msg){
-            if (decode_msg.board_id < IcsServo::BASE_CAN_ID) return false;
-            if (decode_msg.board_id > (IcsServo::BASE_CAN_ID + 0xF)) return false;
-            control_life[decode_msg.board_id - IcsServo::BASE_CAN_ID].set(1);
+            if (decode_msg.board_id < PwmServo::BASE_CAN_ID) return false;
+            if (decode_msg.board_id > (PwmServo::BASE_CAN_ID + 0xF)) return false;
+            control_life[decode_msg.board_id - PwmServo::BASE_CAN_ID].set(1);
             return true;
         }
     };

@@ -14,10 +14,10 @@ const uint16_t CONTROL_TERM_MS = 10;
 
 int main()
 {
-    Board board(ServoPwm::Param::CAN_BASE_ID);
+    Board board(PwmServo::BASE_CAN_ID);
     LiveControl ping(CONTROL_TERM_MS, board.can_id, &GlobalInterface::can1);
-    PwmServoModel servo_control(board.pwms);
-    PwmServoTest servo_test(board.buttons);
+    PwmServoModel servo_control(board.pwms, board.child_id);
+    PwmServoTest servo_test(board.buttons, board.can_id);
     /*================================
     ロジックの初期化
     ==================================*/
@@ -36,9 +36,8 @@ int main()
         CanMessage rcv_msg;
         while (GlobalInterface::can_buff.get(rcv_msg)){
             board.leds[1]->flash(6);
-            if (ServoPwm::Can::isBoardCanID(rcv_msg, board.can_id)){
+            if (servo_control.setControl(rcv_msg)){
                 board.leds[2]->flash(6);
-                servo_control.setControl(rcv_msg);
             }
         }
 

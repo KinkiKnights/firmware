@@ -4,7 +4,7 @@
 #include <string.h>
 #include <stdio.h>
 #include "../io.hpp"
-#include "../../protocol/can_msg.hpp"
+#include "../../protocol/can/can_msg.hpp"
 
 /*==========================================================
  * ============ Uart インターフェイス
@@ -347,7 +347,6 @@ extern "C" void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
             msg.port = 0;
             msg.dlc = RxHeader.DLC;
             msg.id = RxHeader.StdId;
-            msg.filt = RxHeader.FilterMatchIndex;
             GlobalInterface::can_buff.set(msg);
         }
     } else if (hcan->Instance == CAN2){
@@ -356,7 +355,6 @@ extern "C" void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
             msg.port = 0;
             msg.dlc = RxHeader.DLC;
             msg.id = RxHeader.StdId;
-            msg.filt = RxHeader.FilterMatchIndex;
             GlobalInterface::can_buff.set(msg);
         }
     }
@@ -371,7 +369,6 @@ extern "C" void HAL_CAN_RxFifo1MsgPendingCallback(CAN_HandleTypeDef *hcan)
             msg.port = 0;
             msg.dlc = RxHeader.DLC;
             msg.id = RxHeader.StdId;
-            msg.filt = RxHeader.FilterMatchIndex;
             GlobalInterface::can_buff.set(msg);
         }
     } else if (hcan->Instance == CAN2){
@@ -380,7 +377,6 @@ extern "C" void HAL_CAN_RxFifo1MsgPendingCallback(CAN_HandleTypeDef *hcan)
             msg.port = 0;
             msg.dlc = RxHeader.DLC;
             msg.id = RxHeader.StdId;
-            msg.filt = RxHeader.FilterMatchIndex;
             GlobalInterface::can_buff.set(msg);
         }
     }

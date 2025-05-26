@@ -35,7 +35,7 @@ namespace GM6020{
                 uint8_t* section = &frame[2 + idx * PORT_BLOCK];
                 // ターゲットを設定
                 section[0] = port[idx];
-                section[1] = static_cast<uint8_t>(target[idx]) >> 8;
+                section[1] = static_cast<uint8_t>(target[idx] >> 8);
                 section[2] = static_cast<uint8_t>(target[idx]) & 0xFF;
                 frame[1] += PORT_BLOCK;
             }
@@ -57,13 +57,14 @@ namespace GM6020{
                 port[idx] = section[0];
                 target[idx] = static_cast<int16_t>(section[2] | (section[1] << 8));
             }
+            return true;
         }
     };
 }
 namespace GM6020FeedBack{
     struct Serial{
         static const uint8_t SERIAL_ID = 2; // 識別ID
-        static const uint8_t PORT_MAX = 8; // 最大送信ポート数
+        static const uint8_t PORT_MAX = 7; // 最大送信ポート数
         static const uint8_t PORT_NUM = 4; // 基板一つあたりのポート数
         static const uint8_t PORT_BLOCK = 7; // 1ポート情報当たりのバイト数
         // ポート番号から、該当する基板IDを算出します。
@@ -71,6 +72,8 @@ namespace GM6020FeedBack{
             return port / PORT_NUM;
         }
     public: // 設定値
+        // エンコード用ポート別有効フラグ
+        bool port_enable[PORT_MAX];
         // メッセージに含むポート数
         uint8_t port_num = 0;
         // フィードバック対象ポート
@@ -78,6 +81,7 @@ namespace GM6020FeedBack{
         uint16_t fb_position[PORT_MAX];
         uint16_t fb_speed[PORT_MAX];
         uint16_t fb_current[PORT_MAX];
+
     public:
         /**
          * @brief シリアルコマンドのエンコード
@@ -89,7 +93,9 @@ namespace GM6020FeedBack{
             frame[1] = 0;
 
             // 制御情報の設定
-            for (uint8_t idx = 0; idx < port_num; idx++){
+            for (uint8_t idx = 0; idx < PORT_MAX; idx++){
+                // 有効でないポートは除外
+                if (!port_enable[idx]) continue;
                 // ポートごとの情報の先頭を計算
                 uint8_t* section = &frame[2 + idx * PORT_BLOCK];
                 // ターゲットを設定
@@ -122,6 +128,7 @@ namespace GM6020FeedBack{
                 fb_speed[idx] = static_cast<uint16_t>(section[4] | (section[3] << 8));
                 fb_current[idx] = static_cast<uint16_t>(section[6] | (section[5] << 8));
             }
+            return true;
         }
     };
 }

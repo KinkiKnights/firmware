@@ -14,19 +14,17 @@
 
 struct CanMessage
 {
-    bool isExtendedId;
     uint8_t port;
     uint32_t id;
     uint8_t dlc;
     uint8_t data[8];
 
     CanMessage(){
-      isExtendedId = false;
       port = 0;
     }
 
-    CanMessage(uint32_t _id,uint8_t _dlc, bool isEx = false)
-    : isExtendedId(isEx), id(_id), dlc(_dlc){
+    CanMessage(uint32_t _id,uint8_t _dlc)
+    : id(_id), dlc(_dlc){
       if (dlc > 8) dlc = 8;
       port = 0;
     }
@@ -71,8 +69,8 @@ namespace CanCovert
 
   inline void array_2_uint12_4(uint16_t& val, uint8_t& sub, uint8_t *array){
     // バリデーション
-    val = (array[0] & 0xF) + array[1];
-    sub = array[1] >> 4;
+    val = ((array[0] & 0xF)<<8) + array[1];
+    sub = array[0] >> 4;
   }
 
   inline void uint12_4_2_array(uint16_t val, uint8_t sub, uint8_t *array){

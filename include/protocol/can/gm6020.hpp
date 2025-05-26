@@ -37,7 +37,7 @@ namespace GM6020{
         }
         
     public:
-        Can(uint8_t child)
+        Can(uint8_t child = 0)
         : child_id(child){
             for (uint8_t port = 0; port < 4; port++)
             {

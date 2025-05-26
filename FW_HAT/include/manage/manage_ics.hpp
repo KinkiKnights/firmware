@@ -66,7 +66,7 @@ namespace BoardManager
                 if (!feedback_life[board_idx].update(update_ms)) continue;
                 
                 // フィードバックの生成処理
-                uint8_t dlc = board_fb[board_idx]->encode(send_frame);
+                uint8_t dlc = feedback_model[board_idx]->encode(send_frame);
                 sendFrame(send_frame, dlc);
             }
         }

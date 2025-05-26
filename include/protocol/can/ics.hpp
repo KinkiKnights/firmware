@@ -20,13 +20,13 @@ namespace IcsServo{
             return msg;
         }
 
-        inline void decode(CanMessage& msg){
-            if (msg.dlc < 6) return;
+        inline uint8_t decode(CanMessage& msg){
+            if (msg.dlc < 6) return 0xFF;
             for(uint8_t port = 0; port < 2; port++){
                 target[port] = CanCovert::array_2_uint16(&msg.data[port*3]);
                 speed[port] = msg.data[port*3 + 2];
             }
-            return;
+            return child_id;
         }
         
     public:
@@ -37,15 +37,6 @@ namespace IcsServo{
                 target[port] = 0;
                 speed[port] = 0;
             }
-        }
-
-        /**
-         * @brief CAＮメッセージの子IDを返す。不適合であれば-1
-         * @return 各基板側ファームからの利用が想定されている。
-         */
-        inline static int8_t getChildID(CanMessage& msg){
-            if (msg.id >= BASE_CAN_ID && msg.id <= BASE_CAN_ID + 0xF)return msg.id - BASE_CAN_ID;
-            return -1;
         }
     };
 }
@@ -67,30 +58,23 @@ namespace IcsFeedBack{
             return msg;
         }
 
-        inline void decode(CanMessage& msg){
-            if (msg.dlc < 8) return;
+        inline uint8_t decode(CanMessage& msg){
+            if (msg.dlc < 8) return 0xFF;
+            if ((msg.id & 0xFF0) != BASE_CAN_ID) return 0xFF;
+            child_id = msg.id - BASE_CAN_ID;
             for(uint8_t port = 0; port < 4; port++){
                 current_target[port] = CanCovert::array_2_uint16(&msg.data[port*2]);
             }
-            return;
+            return child_id;
         }
         
     public:
-        Can(uint8_t child)
+        Can(uint8_t child = 0)
         : child_id(child){
             for (uint8_t port = 0; port < 4; port++)
             {
                 current_target[port] = 0;
             }
-        }
-
-        /**
-         * @brief CAＮメッセージの子IDを返す。不適合であれば-1
-         * @return 各基板側ファームからの利用が想定されている。
-         */
-        inline static int8_t getChildID(CanMessage& msg){
-            if (msg.id >= BASE_CAN_ID && msg.id <= BASE_CAN_ID + 0xF)return msg.id - BASE_CAN_ID;
-            return -1;
         }
     };
 }

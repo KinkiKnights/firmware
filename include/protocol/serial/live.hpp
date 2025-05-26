@@ -1,7 +1,7 @@
 #pragma once
 #include <stdint.h>
 
-namespace {
+namespace Live{
     struct Serial{
         static const uint8_t SERIAL_ID = 2; // 識別ID
         static const uint8_t INFO_MAX = 20; // 最大送信ポート数
@@ -46,6 +46,7 @@ namespace {
                 uint8_t* section = &frame[2 + idx * INFO_BLOCK];
                 board_id[idx] = static_cast<uint16_t>(section[1] | (section[0] << 8));
             }
+            return true;
         }
     };
 }

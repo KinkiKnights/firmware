@@ -19,7 +19,7 @@ private:
 
     CanMessage msg;
     Can* can;
-    LivingMessage encoder;
+    Live::Can encoder;
 public:
     /**
      * @param call_ms 呼び出し頻度を設定します.
@@ -29,7 +29,7 @@ public:
         counter_target = SEND_TERM / call_ms;
         counter = counter_target * (0b11 & _can_id) / 0x4;
         can = _can;
-        encoder.can_id = _can_id;
+        encoder.board_id = _can_id;
         encoder.serial_id = BUILD_UNIQU_TOKEN;
     }
 
@@ -40,10 +40,7 @@ public:
     void update(uint32_t loop_time, bool is_power = true, bool is_err = false){
         if(++counter < counter_target) return;
         // 更新処理
-        encoder.run_time = HAL_GetTick() / 1000;
-        encoder.setFlag(3, is_power);
-        encoder.setFlag(4, is_err);
-        encoder.loop_time = (loop_time < 200)? loop_time: 0x200;
+        encoder.trans_time = (loop_time < 200)? loop_time: 0x200;
 
         // フレーム送信処理
         msg = encoder.encode();

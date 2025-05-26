@@ -37,9 +37,9 @@ namespace Live{
          * @brief CAＮメッセージの子IDを返す。不適合であれば-1
          * @return 各基板側ファームからの利用が想定されている。
          */
-        inline static int8_t getChildID(CanMessage& msg){
-            if (msg.id == CAN_ID) return 0;
-            return -1;
+        inline static bool getChildID(CanMessage& msg){
+            if (msg.id == CAN_ID) return true;
+            return false;
         }
     };
 }

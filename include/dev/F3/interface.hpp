@@ -4,7 +4,7 @@
 #include <string.h>
 #include <stdio.h>
 #include "../io.hpp"
-#include "../../protocol/can_msg.hpp"
+#include "../../protocol/_protocol.hpp"
 
 /*==========================================================
  * ============ Uart インターフェイス
@@ -256,13 +256,8 @@ public:
         CAN_TxHeaderTypeDef TxHeader;
         // メールボックス空き容量確認
         if(0 < HAL_CAN_GetTxMailboxesFreeLevel(&hcan)){                        
-            if (msg.isExtendedId) {
-                TxHeader.ExtId = msg.id;
-                TxHeader.IDE = CAN_ID_EXT;
-            } else {
-                TxHeader.StdId = msg.id;
-                TxHeader.IDE = CAN_ID_STD;
-            }
+            TxHeader.StdId = msg.id;
+            TxHeader.IDE = CAN_ID_STD;
             TxHeader.RTR = CAN_RTR_DATA;
             TxHeader.DLC = msg.dlc;
             TxHeader.TransmitGlobalTime = DISABLE;
@@ -327,13 +322,7 @@ extern "C" void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
         // GlobalInterface::can1.rx_led->flash(5, Led::LED_MODE::CAN_LED);
         msg.port = 0;
         msg.dlc = RxHeader.DLC;
-        msg.filt = RxHeader.FilterMatchIndex;
-
-        msg.isExtendedId = (TxHeader.IDE != CAN_ID_STD)
-        if (msg.isExtendedId)
-            msg.id = RxHeader.ExtId;
-        else
-            msg.id = RxHeader.StdId;
+        msg.id = RxHeader.StdId;
         GlobalInterface::can_buff.set(msg);
     }
 }

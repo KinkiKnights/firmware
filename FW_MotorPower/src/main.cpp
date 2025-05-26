@@ -3,7 +3,7 @@
 #include "../../include/protocol/_protocol.hpp"
 #include "../../include/control/live_control.hpp"
 #include "./motor_control.hpp"
-#include "./encoder_control.hpp"
+// #include "./encoder_control.hpp"
 asm(".global _printf_float");
 const uint16_t CONTROL_TERM_MS = 10;
 
@@ -16,11 +16,11 @@ const uint16_t CONTROL_TERM_MS = 10;
 
 int main()
 {
-    Board board(Motor::Param::CAN_BASE_ID);
+    Board board(Motor::BASE_CAN_ID);
     LiveControl ping(CONTROL_TERM_MS, board.can_id, &GlobalInterface::can1);
     MotorControl motor_control(CONTROL_TERM_MS, board.motors);
-    EncoderControl encoder_control(board.can_id + Motor::Param::CAN_ENCODER_OFFSET, board.encoder);
-    MotorTest motor_test(board.buttons, 0.2f);
+    // EncoderControl encoder_control(board.can_id + Motor::Param::CAN_ENCODER_OFFSET, board.encoder);
+    MotorTest motor_test(board.buttons, 0.5f, board.child_id);
     
     /*================================
     ロジックの初期化
@@ -56,17 +56,15 @@ int main()
         CanMessage rcv_msg;
         while (GlobalInterface::can_buff.get(rcv_msg)){
             board.leds[1]->flash(6);
-            if (Motor::Can::isBoardCanID(rcv_msg, board.can_id)){
+            if (motor_control.setControl(rcv_msg)){
                 board.leds[2]->flash(6);
-                motor_control.setControl(rcv_msg);
-                
                 printf("GetCAN              \n");
             }
         }
         printf("margin: %dms\n", margin_ms);
         ping.update(CONTROL_TERM_MS - margin_ms);
         motor_control.update();
-        encoder_control.update();
+        // encoder_control.update();
     }
 #endif
 
@@ -78,7 +76,7 @@ int main()
         motor_test.update(board.can_id, p1);
         motor_control.setControl(p1);
         motor_control.update();
-        encoder_control.update();
+        // encoder_control.update();
         board.leds[1]->flash(2);
         board.leds[2]->flash(2);
         int16_t margin_ms = board.waitInterval(CONTROL_TERM_MS);

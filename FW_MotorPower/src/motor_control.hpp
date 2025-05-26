@@ -38,8 +38,8 @@ public:
     MotorControl(uint16_t _term_ms, MotorPort** _motors)
     : CONTROL_TERM(_term_ms)
     , mtrs(_motors){
-        decoder.ctrl_mode[0] = Motor::DEF::FREE;
-        decoder.ctrl_mode[1] = Motor::DEF::FREE;
+        decoder.target[0] = 0;
+        decoder.target[1] = 0;
     }
 
     void update(){
@@ -52,54 +52,43 @@ public:
         }
         // 通常アップデート
         for (uint8_t port = 0; port < 2; port++){
-            if (decoder.ctrl_mode[port] == Motor::DEF::FREE) {
-                mtrs[port]->free();
-                printf("Free\n");
-            } else if (decoder.ctrl_mode[port] == Motor::DEF::DUTY){
-                float duty = decoder.getDuty(port);
-                mtrs[port]->sendDuty(duty);
-            }
+            float duty = decoder.target[port] * 1.f / 0x7FFF;  
+            mtrs[port]->sendDuty(duty);
         }
         return;
     }
 
-    void setControl(CanMessage& msg){
+    bool setControl(CanMessage& msg){
+        if (0xFF == decoder.decode(msg)) return false;
         wd_counter = 0;
-        decoder.decode(msg);
+        return true;
     }
 };
 
 class MotorTest{
     Motor::Can encoder;
     Button** buttons;
-    float test_duty;
+    uint16_t test_out;
     uint8_t cc = 0;
 public:
-    MotorTest(Button** _buttons, float _test_duty){
+    MotorTest(Button** _buttons, float _test_duty, uint8_t _child_id)
+    : encoder(_child_id){
         buttons = _buttons;
-        test_duty = _test_duty;
+        test_out = static_cast<int16_t>(_test_duty * 0x7FFF);
     }
 
     void update(uint8_t child_id, CanMessage& msg){
         cc= (cc+1)% 10;
+        float output = 0.f;
         if(buttons[0]->getState()){
-            encoder.ctrl_mode[0] = Motor::DEF::DUTY;
-            encoder.ctrl_mode[1] = Motor::DEF::DUTY;
-            encoder.setDuty(test_duty,0);
-            encoder.setDuty(test_duty,1);
-            printf("Debug Duty->%f\n", test_duty);
-        } else if(buttons[1]->getState()){
-            encoder.ctrl_mode[0] = Motor::DEF::DUTY;
-            encoder.ctrl_mode[1] = Motor::DEF::DUTY;
-            encoder.setDuty(-test_duty,0);
-            encoder.setDuty(-test_duty,1);
-            printf("Debug Duty->%f\n", -test_duty);
-        } else {
-            encoder.ctrl_mode[0] = Motor::DEF::FREE;
-            encoder.ctrl_mode[1] = Motor::DEF::FREE;
-            printf("Debug Free\n");
+            output = test_out;
+        }else if(buttons[1]->getState()){
+            output = -test_out;
         }
-        msg = encoder.encode(child_id);
+
+        encoder.target[0]= output;
+        encoder.target[1]= output;
+        msg = encoder.encode();
     }
 
 };

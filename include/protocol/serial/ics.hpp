@@ -8,12 +8,7 @@ namespace IcsServo{
     struct Serial{
         static const uint8_t SERIAL_ID = 1; // 基板一つあたりのポート数
         static const uint8_t PORT_MAX = 16; // 基板一つあたりのポート数
-        static const uint8_t PORT_NUM = 4; // 基板一つあたりのポート数
         static const uint8_t PORT_BLOCK = 4; // 1ポート情報当たりのバイト数
-        // ポート番号から、該当する基板IDを算出します。
-        static uint8_t getBoardID(uint8_t port){
-            return port / PORT_NUM;
-        }
     public: // 設定値
         // メッセージに含むポート数
         uint8_t port_num = 0;
@@ -65,20 +60,16 @@ namespace IcsServo{
                 pos[idx] = section[2];
                 pos[idx] = (pos[idx] << 8) + section[3];
             }
+            return true;
         }
     };
 }
 
-namespace IcsServoFeedBack{
+namespace IcsFeedBack{
     struct Serial{
         static const uint8_t SERIAL_ID = 2; // 識別ID
         static const uint8_t PORT_MAX = 4; // 最大送信ポート数
-        static const uint8_t PORT_NUM = 4; // 基板一つあたりのポート数
         static const uint8_t PORT_BLOCK = 2; // 1ポート情報当たりのバイト数
-        // ポート番号から、該当する基板IDを算出します。
-        static uint8_t getBoardID(uint8_t port){
-            return port / PORT_NUM;
-        }
     public: // 設定値
         // メッセージに含むポート数
         uint8_t port_num = PORT_MAX;
@@ -123,6 +114,7 @@ namespace IcsServoFeedBack{
                 uint8_t* section = &frame[3 + idx * PORT_BLOCK];
                 fb_target[idx] = static_cast<uint16_t>(section[1] | (section[0] << 8));
             }
+            return true;
         }
     };
 }

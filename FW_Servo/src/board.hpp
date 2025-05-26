@@ -31,6 +31,7 @@ private:
 
 public:
     uint16_t can_id;
+    uint8_t child_id;
     Button* buttons[2];
     Led* leds[3];
     GpioIN* power;
@@ -40,6 +41,7 @@ public:
     // ボード初期化用コンストラクタ
     Board(uint16_t can_id_base){
         // CAN ID定義
+        child_id = CAN_CHILD_ID;
         can_id = can_id_base + CAN_CHILD_ID;
         // システム初期化
         HAL_Init();

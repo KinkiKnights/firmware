@@ -12,40 +12,32 @@ namespace PwmServo{
         
     public:
         inline CanMessage encode(){
-            CanMessage msg;
-            msg.id = BASE_CAN_ID + child_id;
-            msg.dlc = 8;
+            CanMessage msg(BASE_CAN_ID + child_id, 8);
             for(uint8_t port = 0; port < 4; port++){
                 CanCovert::uint12_4_2_array(target[port], speed[port], &msg.data[port*2]);
             }
             return msg;
         }
 
-        inline void decode(CanMessage& msg){
-            if (msg.dlc < 8) return;
+        inline uint8_t decode(CanMessage& msg){
+            if (msg.dlc < 8) return 0xFF;
+            int16_t cid = msg.id - BASE_CAN_ID;
+            child_id = cid;
+            
             for(uint8_t port = 0; port < 4; port++){
                 CanCovert::array_2_uint12_4(target[port], speed[port], &msg.data[port*2]);
             }
-            return;
+            return child_id;
         }
         
     public:
-        Can(uint8_t child)
+        Can(uint8_t child = 0)
         : child_id(child){
             for (uint8_t port = 0; port < 4; port++)
             {
                 target[port] = 0;
                 speed[port] = 0;
             }
-        }
-
-        /**
-         * @brief CAＮメッセージの子IDを返す。不適合であれば-1
-         * @return 各基板側ファームからの利用が想定されている。
-         */
-        inline static int8_t getChildID(CanMessage& msg){
-            if (msg.id >= BASE_CAN_ID && msg.id <= BASE_CAN_ID + 0xF)return msg.id - BASE_CAN_ID;
-            return -1;
         }
     };
 }
@@ -67,30 +59,23 @@ namespace PwmFeedBack{
             return msg;
         }
 
-        inline void decode(CanMessage& msg){
-            if (msg.dlc < 8) return;
+        inline uint8_t decode(CanMessage& msg){
+            if (msg.dlc < 8) return 0xFF;
+            if ((msg.id & 0xFF0) != BASE_CAN_ID) return 0xFF;
+            child_id = msg.id - BASE_CAN_ID;
             for(uint8_t port = 0; port < 4; port++){
                 current_target[port] = CanCovert::array_2_uint16(&msg.data[port*2]);
             }
-            return;
+            return child_id;
         }
         
     public:
-        Can(uint8_t child)
+        Can(uint8_t child = 0)
         : child_id(child){
             for (uint8_t port = 0; port < 4; port++)
             {
                 current_target[port] = 0;
             }
-        }
-
-        /**
-         * @brief CAＮメッセージの子IDを返す。不適合であれば-1
-         * @return 各基板側ファームからの利用が想定されている。
-         */
-        inline static int8_t getChildID(CanMessage& msg){
-            if (msg.id >= BASE_CAN_ID && msg.id <= BASE_CAN_ID + 0xF)return msg.id - BASE_CAN_ID;
-            return -1;
         }
     };
 }
