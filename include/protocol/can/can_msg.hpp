@@ -38,7 +38,7 @@ namespace CanCovert
   }
 
   inline void uint16_2_array(uint16_t val, uint8_t *array){
-    array[0] = 0xFF >> 8;
+    array[0] = val >> 8;
     array[1] = 0xFF & val;
   }
 

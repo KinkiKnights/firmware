@@ -25,7 +25,6 @@ private:
 
 public:
     void update(uint16_t term_ms){
-        printf("OutPutPWM:");
         for (uint8_t port = 0; port < 8; port++){
             // 最大速度計算
             float limit = speed_table[speed_index[port]] * term_ms;
@@ -39,16 +38,16 @@ public:
                 pos_duty_current[port] = pos_counta_target[port];
             // カウンタピリオド設定
             pwms[port]->setPeriod(static_cast<uint16_t>(pos_duty_current[port]));
-            printf("%d, ", static_cast<uint16_t>(pos_duty_current[port]));
+            // printf("%d, ", static_cast<uint16_t>(pos_duty_current[port]));
         }
-        printf("\n");
+        // printf("\n");
     }
 
     PwmServo::Can decoder;
     bool setControl(CanMessage& msg){
         int16_t cid = msg.id - PwmServo::BASE_CAN_ID - child_id;
         if (cid < 0 || cid > 1) {
-            printf("None target Can ID :%d\n", msg.id);
+            // printf("None target Can ID :%d\n", msg.id);
             return false;
         }
         

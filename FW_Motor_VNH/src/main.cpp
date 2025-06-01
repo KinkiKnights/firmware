@@ -15,10 +15,11 @@ const uint16_t CONTROL_TERM_MS = 10;
 
 int main()
 {
-    Board board(Motor::Param::CAN_BASE_ID);
+    Board board(Motor::BASE_CAN_ID);
     LiveControl ping(CONTROL_TERM_MS, board.can_id, &GlobalInterface::can1);
     MotorControl motor_control(CONTROL_TERM_MS, board.motors);
-    MotorTest motor_test(board.buttons, 0.5f);
+    // EncoderControl encoder_control(board.can_id + Motor::Param::CAN_ENCODER_OFFSET, board.encoder);
+    MotorTest motor_test(board.buttons, 0.5f, board.child_id);
     
     /*================================
     ロジックの初期化
@@ -53,9 +54,9 @@ int main()
         CanMessage rcv_msg;
         while (GlobalInterface::can_buff.get(rcv_msg)){
             board.leds[1]->flash(6);
-            if (Motor::Can::isBoardCanID(rcv_msg, board.can_id)){
+            if (motor_control.setControl(rcv_msg)){
                 board.leds[2]->flash(6);
-                motor_control.setControl(rcv_msg);
+                printf("GetCAN              \n");
             }
         }
         printf("margin: %dms\n", margin_ms);
@@ -70,7 +71,7 @@ int main()
     {           
         CanMessage p1;
         motor_test.update(board.can_id, p1);
-        motor_control.setControl(p1);
+        motor_control.setControl(p1, true);
         motor_control.update();
         board.leds[1]->flash(2);
         board.leds[2]->flash(2);

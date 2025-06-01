@@ -6,7 +6,7 @@ namespace PwmServo{
      * @brief Serialプロトコル
      */
     struct Serial{
-        static const uint8_t SERIAL_ID = 1; // 基板一つあたりのポート数
+        static const uint8_t SERIAL_ID = 20; // 基板一つあたりのポート数
         static const uint8_t PORT_MAX = 16; // 基板一つあたりのポート数
         static const uint8_t PORT_BLOCK = 4; // 1ポート情報当たりのバイト数
     public: // 設定値
@@ -67,7 +67,7 @@ namespace PwmServo{
 
 namespace PwmFeedBack{
     struct Serial{
-        static const uint8_t SERIAL_ID = 2; // 識別ID
+        static const uint8_t SERIAL_ID = 21; // 識別ID
         static const uint8_t PORT_MAX = 4; // 最大送信ポート数
         static const uint8_t PORT_BLOCK = 2; // 1ポート情報当たりのバイト数
     public: // 設定値

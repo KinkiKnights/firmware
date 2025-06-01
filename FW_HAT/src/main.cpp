@@ -8,7 +8,7 @@ Board* global_board;
 #include "manage/manage.hpp"
 #include "test.hpp"
 asm(".global _printf_float");
-constexpr uint8_t CYCLE_MS = 10;
+constexpr uint8_t CYCLE_MS = 5000;
 
 int main()
 {
@@ -29,8 +29,7 @@ int main()
     {
         // 実行更新
         board.leds[0]->flash(20);
-        // int16_t margin_ms = board.waitInterval(CONTROL_TERM_MS);
-        board.waitInterval(CYCLE_MS);
+        int16_t margin_ms = board.waitInterval(50);
 
         // CAN受信メッセージ処理
         while (GlobalInterface::can_buff.get(rcv_msg)){
@@ -42,7 +41,7 @@ int main()
 
         // 各種テスト
         Test::update(board, manager, CYCLE_MS);
-
+        printf("margin: %dms\n", margin_ms);
     }
     return 0;
 }

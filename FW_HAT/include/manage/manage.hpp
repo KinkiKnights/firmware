@@ -6,6 +6,7 @@
 #include "./manage_ics.hpp"
 #include "./manage_pwm.hpp"
 #include "./manage_gm6020.hpp"
+#include "./manage_motor.hpp"
 
 namespace BoardManager
 {
@@ -15,6 +16,7 @@ namespace BoardManager
         PwmManager pwm;
         IcsManager ics;
         Gm6020Manager gm6020;
+        MotorManager motor;
 
         Live::Can live_decoder;
         Live::Serial live_encoder;
@@ -30,6 +32,7 @@ namespace BoardManager
             pwm.update(update_ms);
             ics.update(update_ms);
             gm6020.update(update_ms);
+            motor.update(update_ms);
         }
         void rcvCanMsg(CanMessage& msg){
             if(pwm.rcvCan(msg)) return;
@@ -38,11 +41,14 @@ namespace BoardManager
 
             // LIVEメッセージなら統一Manager側で処理
             if (Live::Can::getChildID(msg)){
+                
                 live_decoder.decode(msg);
+                printf("Living Board: %d\n", live_decoder.board_id);
                 // 各マネージャの更新処理
                 do {
                     if (pwm.rcvLive(live_decoder)) break;
                     if (ics.rcvLive(live_decoder)) break;
+                    if (motor.rcvLive(live_decoder)) break;
                     // if (gm6020.rcvLive(live_decoder)) break;　GM6020にはlIVE機能は無し
                     // 該当する基板が無ければラズパイには情報送信しない
                     return;
@@ -57,6 +63,7 @@ namespace BoardManager
             if(pwm.rcvCommand(frames)) return true;
             if(ics.rcvCommand(frames)) return true;
             if(gm6020.rcvCommand(frames)) return true;
+            if(motor.rcvCommand(frames)) return true;
             printf("NONE Match(%d)\n", frames[0]);
             return false;
         }

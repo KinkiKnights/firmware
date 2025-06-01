@@ -33,6 +33,7 @@ private:
     }
 
 public:
+    uint8_t child_id; 
     uint16_t can_id;
     Button* buttons[2];
     Led* leds[4];
@@ -43,6 +44,7 @@ public:
     Board(uint16_t can_id_base){
         // CAN ID定義
         can_id = can_id_base + CAN_CHILD_ID;
+        child_id =  CAN_CHILD_ID;
         // システム初期化
         HAL_Init();
         SystemClockConfig();

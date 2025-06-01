@@ -61,7 +61,7 @@ public:
 class UartDMA{
     UART_HandleTypeDef huart;
     USART_TypeDef* port;
-    static const uint16_t USART_RX_BUFFSIZE = 1280;
+    static const uint16_t USART_RX_BUFFSIZE = 12800;
     uint8_t RxBuff[USART_RX_BUFFSIZE];
 public:
     DMA_HandleTypeDef hdma_usart1_tx;
@@ -119,7 +119,7 @@ public:
 
         // UART通信の設定
         huart.Instance = port;
-        huart.Init.BaudRate = 115200;
+        huart.Init.BaudRate = 38400;
         huart.Init.WordLength = UART_WORDLENGTH_8B;
         huart.Init.StopBits = UART_STOPBITS_1;
         huart.Init.Parity = UART_PARITY_NONE;
@@ -145,7 +145,7 @@ public:
         HAL_UART_Transmit(&huart, (uint8_t*)str, strlen(str), 1000);
     }
     void send(uint8_t* str, uint16_t len){
-        HAL_UART_Transmit(&huart, str, len, 1000);
+        HAL_UART_Transmit(&huart, str, len, 200);
     }
 public: // DMA処理関連
     uint32_t rd_ptr = 0;
@@ -296,7 +296,7 @@ public:
   ==========================================================*/
 
 // CANバッファ量定義
-constexpr uint16_t CAN_BUFF_NUM = 100;
+constexpr uint16_t CAN_BUFF_NUM = 1000;
 constexpr uint16_t CAN_BUFF_RW_MARGIN = 990;
 // CANメッセージ受信バッファ
 class CanBuffer{

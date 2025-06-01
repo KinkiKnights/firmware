@@ -51,6 +51,7 @@ namespace BoardManager
                 // ボードのライフサイクルがタイムオーバーしていたら更新処理を省略
                 if (!control_life[board_idx].update(update_ms)) continue;
                 
+                printf("Board send transaction: %d\n", board_idx);
                 // 送信処理
                 GlobalInterface::can1.send(control_model[board_idx]->encode());
             }

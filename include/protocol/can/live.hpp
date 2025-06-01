@@ -16,6 +16,7 @@ namespace Live{
             CanMessage msg;
             msg.id = CAN_ID;
             msg.dlc = 7;
+            
             CanCovert::uint16_2_array(board_id, &msg.data[0]);
             CanCovert::uint16_2_array(serial_id, &msg.data[2]);
             CanCovert::uint16_2_array(run_time, &msg.data[4]);

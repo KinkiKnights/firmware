@@ -30,6 +30,7 @@ namespace BoardManager
         // 受信用通信クラス
         GM6020::Serial serial_decoder;
         GM6020::Can can_decoder;
+        bool feedback_rcv_saver[MOTOR_MAX];
         // 送信処理用一時バッファ
         uint8_t send_frame[256];
 
@@ -65,11 +66,10 @@ namespace BoardManager
             
             // ボードのライフサイクルが待もらえれているポートのみエンコード準備
             for (uint8_t port_idx = 0; port_idx < MOTOR_MAX;port_idx++){
-                feedback_model.port_enable[port_idx] = control_life[port_idx].update(update_ms);
+                feedback_model.port_enable[port_idx] = feedback_life[port_idx].update(update_ms);
             }
-            // サーボ角度のフィードバックをエンコードして送信
-            uint8_t dlc = feedback_model.encode(send_frame);
-            sendFrame(send_frame, dlc);
+                uint8_t dlc = feedback_model.encode(send_frame);
+                sendFrame(send_frame, dlc);
         }
 
         /**
@@ -77,27 +77,19 @@ namespace BoardManager
          * @return 該当する場合はtrueを返す
          */
         bool rcvCan(CanMessage& msg){
-            // メッセージのデコード
-            // port_idxは0始まり
-            uint8_t port_idx = can_decoder.decode(msg);
             // デコード結果が無効なら処理終了
-            if (port_idx == 0xff) return false;
+            uint8_t port = can_decoder.decode(msg);
+            if(port == 0xff) return false;
 
-            // フィードバックモデルのライフサイクルの更新
-            feedback_life[port_idx].set();
             // デコード結果の反映
-            for (uint8_t idx = 0; idx < 4; idx++){
-                // 格納ポートの計算と範囲外の終了処理
-                uint8_t port = idx + port_idx * 4;
-                if (port > 6) break;
-
-                feedback_model.fb_position[port] = can_decoder.fb_position[idx];
-                feedback_model.fb_speed[port] = can_decoder.fb_speed[idx];
-                feedback_model.fb_current[port] = can_decoder.fb_current[idx];    
-            }
+            feedback_life[port].set();
+            feedback_model.fb_position[port] = can_decoder.fb_position;
+            feedback_model.fb_speed[port] = can_decoder.fb_speed;
+            feedback_model.fb_current[port] = can_decoder.fb_current;    
             return true;
         }
 
+        
         /**
          * @brief UART受信処理用関数
          * @return 該当する場合はtrueを返す

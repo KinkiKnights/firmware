@@ -3,7 +3,7 @@
 
 namespace GM6020{
     struct Serial{
-        static const uint8_t SERIAL_ID = 2; // 識別ID
+        static const uint8_t SERIAL_ID = 15; // 識別ID
         static const uint8_t PORT_MAX = 8; // 最大送信ポート数
         static const uint8_t PORT_NUM = 4; // 基板一つあたりのポート数
         static const uint8_t PORT_BLOCK = 3; // 1ポート情報当たりのバイト数
@@ -63,10 +63,10 @@ namespace GM6020{
 }
 namespace GM6020FeedBack{
     struct Serial{
-        static const uint8_t SERIAL_ID = 2; // 識別ID
+        static const uint8_t SERIAL_ID = 16; // 識別ID
         static const uint8_t PORT_MAX = 7; // 最大送信ポート数
         static const uint8_t PORT_NUM = 4; // 基板一つあたりのポート数
-        static const uint8_t PORT_BLOCK = 7; // 1ポート情報当たりのバイト数
+        static const uint8_t PORT_BLOCK = 3; // 1ポート情報当たりのバイト数
         // ポート番号から、該当する基板IDを算出します。
         static uint8_t getBoardID(uint8_t port){
             return port / PORT_NUM;
@@ -97,17 +97,18 @@ namespace GM6020FeedBack{
                 // 有効でないポートは除外
                 if (!port_enable[idx]) continue;
                 // ポートごとの情報の先頭を計算
-                uint8_t* section = &frame[2 + idx * PORT_BLOCK];
+                uint8_t* section = &frame[2 + frame[1]];
                 // ターゲットを設定
-                section[0] = port[idx];
+                section[0] = idx;
                 section[1] = static_cast<uint8_t>(fb_position[idx] >> 8);
                 section[2] = static_cast<uint8_t>(fb_position[idx] & 0xFF);
-                section[3] = static_cast<uint8_t>(fb_speed[idx] >> 8);
-                section[4] = static_cast<uint8_t>(fb_speed[idx] & 0xFF);
-                section[5] = static_cast<uint8_t>(fb_current[idx] >> 8);
-                section[6] = static_cast<uint8_t>(fb_current[idx] & 0xFF);
+                // section[3] = static_cast<uint8_t>(fb_speed[idx] >> 8);
+                // section[4] = static_cast<uint8_t>(fb_speed[idx] & 0xFF);
+                // section[5] = static_cast<uint8_t>(fb_current[idx] >> 8);
+                // section[6] = static_cast<uint8_t>(fb_current[idx] & 0xFF);
                 frame[1] += PORT_BLOCK;
             }
+            printf("ecoded! ");
             // 全体長(DLC + 2)を返す
             return frame[1] + 2;
         }
@@ -125,8 +126,8 @@ namespace GM6020FeedBack{
                 uint8_t* section = &frame[2 + idx * PORT_BLOCK];
                 port[idx] = section[0];
                 fb_position[idx] = static_cast<uint16_t>(section[2] | (section[1] << 8));
-                fb_speed[idx] = static_cast<uint16_t>(section[4] | (section[3] << 8));
-                fb_current[idx] = static_cast<uint16_t>(section[6] | (section[5] << 8));
+                // fb_speed[idx] = static_cast<uint16_t>(section[4] | (section[3] << 8));
+                // fb_current[idx] = static_cast<uint16_t>(section[6] | (section[5] << 8));
             }
             return true;
         }
