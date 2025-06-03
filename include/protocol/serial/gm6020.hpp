@@ -108,7 +108,6 @@ namespace GM6020FeedBack{
                 // section[6] = static_cast<uint8_t>(fb_current[idx] & 0xFF);
                 frame[1] += PORT_BLOCK;
             }
-            printf("ecoded! ");
             // 全体長(DLC + 2)を返す
             return frame[1] + 2;
         }

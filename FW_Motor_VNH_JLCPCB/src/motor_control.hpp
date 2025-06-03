@@ -18,6 +18,12 @@ public:
     }
 
     void sendDuty(float target_duty){
+        if (target_duty < 0.05f && target_duty > -0.05f){
+            free();
+            // printf("Be Free ");
+            // printf(" out->%f\n", target_duty);
+            return;
+        }
         
         float diff = target_duty - current_duty;
         if (diff > MAX_DIFF)

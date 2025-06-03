@@ -22,14 +22,14 @@ namespace Motor{
             printf("@1");
             if (msg.dlc != 4) return 0xFF;
             int16_t cid = msg.id - BASE_CAN_ID;
-            child_id = cid;
+            if (child_id != cid) return 0xFF;
             printf("@2:%d - %d->%d",msg.id, BASE_CAN_ID, cid);
             if (cid > 0xF || cid < 0) return 0xFF;
             for(uint8_t port = 0; port < 2; port++){
                 target[port] = CanCovert::array_2_int16(&msg.data[port*2]);
             }
             printf("@3");
-            return child_id;
+            return cid;
         }
         
     public:

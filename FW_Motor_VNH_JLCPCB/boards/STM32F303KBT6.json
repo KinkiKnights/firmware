@@ -1,0 +1,19 @@
+{
+    "build": {
+      "cpu": "cortex-m4",
+      "f_cpu": "72000000L",
+      "mcu": "stm32f303bt",
+      "variant": "STM32F3xx/F303xB(C)Tx"
+    },
+    "frameworks": ["stm32cube"],
+    "name": "Custom STM32F303BT Board",
+    "upload": {
+      "maximum_ram_size": 16384,
+      "maximum_size": 131072,
+      "protocol": "stlink",
+      "protocols": ["stlink", "jlink", "blackmagic", "serial"]
+    },
+    "url": "http://www.st.com/en/microcontrollers/stm32f303bt.html",
+    "vendor": "ST"
+  }
+  

@@ -20,8 +20,7 @@ int main()
     MotorControl motor_control(CONTROL_TERM_MS, board.motors, board.child_id);
     // EncoderControl encoder_control(board.can_id + Motor::Param::CAN_ENCODER_OFFSET, board.encoder);
     MotorTest motor_test(board.buttons, 0.5f, board.child_id);
-    HAL_Delay(100);
-    const bool DEBUG_MODE = (board.buttons[0]->getState() && board.buttons[1]->getState());
+    
     /*================================
     子IDの初期表示
     ==================================*/
@@ -36,11 +35,11 @@ int main()
         HAL_Delay(300);
     }
 
-    
     /*================================
     ロジックの初期化
     ==================================*/
-    HAL_Delay(1000);
+    HAL_Delay(100);
+    const bool DEBUG_MODE = (board.buttons[0]->getState() && board.buttons[1]->getState());
     printf("MotorDriver V3.0 :: CAN ID = %d\n", board.can_id);
     
     EPB::Can epb_decoder;
