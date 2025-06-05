@@ -58,6 +58,8 @@ public:
 };
 
 #define DMA_WRITE_PTR ( (USART_RX_BUFFSIZE - huart.hdmarx->Instance->NDTR) % (USART_RX_BUFFSIZE) )
+bool dma_uart_is_sending = false;
+
 class UartDMA{
     UART_HandleTypeDef huart;
     USART_TypeDef* port;
@@ -66,6 +68,7 @@ class UartDMA{
 public:
     DMA_HandleTypeDef hdma_usart1_tx;
     DMA_HandleTypeDef hdma_usart1_rx;
+
 public:
     void init(){
 
@@ -119,7 +122,7 @@ public:
 
         // UART通信の設定
         huart.Instance = port;
-        huart.Init.BaudRate = 38400;
+        huart.Init.BaudRate = 115200;
         huart.Init.WordLength = UART_WORDLENGTH_8B;
         huart.Init.StopBits = UART_STOPBITS_1;
         huart.Init.Parity = UART_PARITY_NONE;
@@ -141,11 +144,17 @@ public:
        return &huart;
     }
 
-    void send(char* str){
-        HAL_UART_Transmit(&huart, (uint8_t*)str, strlen(str), 1000);
+    bool send(char* str){
+        if (dma_uart_is_sending) return true;
+        dma_uart_is_sending = true;
+        HAL_UART_Transmit_DMA(&huart, (uint8_t*)str, strlen(str));
+        return true;
     }
-    void send(uint8_t* str, uint16_t len){
-        HAL_UART_Transmit(&huart, str, len, 200);
+    bool send(uint8_t* str, uint16_t len){
+        if (dma_uart_is_sending) return false;
+        dma_uart_is_sending = true;
+        HAL_UART_Transmit_DMA(&huart, str, len);
+        return true;
     }
 public: // DMA処理関連
     uint32_t rd_ptr = 0;
@@ -191,6 +200,10 @@ extern "C" void DMA2_Stream2_IRQHandler(void)
 extern "C" void DMA2_Stream7_IRQHandler(void)
 {
     HAL_DMA_IRQHandler(&GlobalInterface::dma_uart.hdma_usart1_tx);
+}
+
+extern "C"  void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart){
+    dma_uart_is_sending = false;
 }
 
 #endif

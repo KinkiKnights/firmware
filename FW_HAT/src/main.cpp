@@ -8,7 +8,10 @@ Board* global_board;
 #include "manage/manage.hpp"
 #include "test.hpp"
 asm(".global _printf_float");
-constexpr uint8_t CYCLE_MS = 5000;
+
+#define LOG_SERIAL
+
+constexpr uint8_t CYCLE_MS = 5;
 
 int main()
 {
@@ -23,13 +26,23 @@ int main()
     BoardManager::BoardManager manager;
     CanMessage rcv_msg;
 
-    // 単体デバッグ実行用
+    // // 単体デバッグ実行用
     
+    // uint8_t frm[200];
+    // for(uint8_t i = 0; i < 200; i++)
+    //     frm[i] = i;
+    // while (1)
+    // {
+    //     GlobalInterface::dma_uart.send(frm,200);
+    //     HAL_Delay(10);
+    // }
+
+
     while (1)
     {
         // 実行更新
         board.leds[0]->flash(20);
-        int16_t margin_ms = board.waitInterval(50);
+        int16_t margin_ms = board.waitInterval(CYCLE_MS);
 
         // CAN受信メッセージ処理
         while (GlobalInterface::can_buff.get(rcv_msg)){

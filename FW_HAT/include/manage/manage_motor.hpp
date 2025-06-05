@@ -61,7 +61,7 @@ namespace BoardManager
                 }
                 // ボードのライフサイクルがタイムオーバーしていたら更新処理を省略
                 if (!board_life[board_idx].update(update_ms)) continue;
-                printf("Send MOtor Data!! %d(%d,%d)\n", board_idx,control_model[board_idx]->target[0],control_model[board_idx]->target[1]);
+                // printf("Send MOtor Data!! %d(%d,%d)\n", board_idx,control_model[board_idx]->target[0],control_model[board_idx]->target[1]);
                 
                 // 送信処理
                 GlobalInterface::can1.send(control_model[board_idx]->encode());

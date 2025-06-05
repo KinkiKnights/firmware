@@ -34,6 +34,10 @@ namespace BoardManager
         // 送信処理用一時バッファ
         uint8_t send_frame[256];
 
+        // 現在値計算用
+        uint32_t last_pos[MOTOR_MAX];
+        uint8_t pos_offset[MOTOR_MAX];
+
     public: // インターフェイス関数群
         Gm6020Manager(){
             // 制御単位モデルのインスタンス化
@@ -45,6 +49,8 @@ namespace BoardManager
             // ポートは1~7のため注意
             for (uint8_t idx = 0; idx < MOTOR_MAX; idx++ ){
                 feedback_model.port[idx] = idx + 1;
+                last_pos[idx] = 0;
+                pos_offset[idx] = 0;
             }
         }
 
@@ -67,9 +73,26 @@ namespace BoardManager
             // ボードのライフサイクルが待もらえれているポートのみエンコード準備
             for (uint8_t port_idx = 0; port_idx < MOTOR_MAX;port_idx++){
                 feedback_model.port_enable[port_idx] = feedback_life[port_idx].update(update_ms);
+                // 現在値オフセット処理
+                if (feedback_model.port_enable[port_idx]){
+                    uint16_t now = feedback_model.fb_position[port_idx];
+                    // オフセットは1周
+                    if (last_pos[port_idx] > 6000 && now < 2000){
+                        pos_offset[port_idx] += 1;
+                    }
+                    if (now > 6000 && last_pos[port_idx] < 2000){
+                        pos_offset[port_idx] -= 1;
+                    }
+                    last_pos[port_idx] = now;
+                    pos_offset[port_idx] = pos_offset[port_idx] % 0xFF;
+                    feedback_model.fb_posofs[port_idx] = pos_offset[port_idx];
+                }
+                if (feedback_life[port_idx].get()){
+                    uint8_t dlc = feedback_model.encode(send_frame);
+                    sendFrame(send_frame, dlc);
+                }
+                feedback_model.port_enable[port_idx] = false;
             }
-                uint8_t dlc = feedback_model.encode(send_frame);
-                sendFrame(send_frame, dlc);
         }
 
         /**

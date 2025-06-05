@@ -26,6 +26,7 @@ namespace BoardManager
         BoardManager(){}
         
         void update(uint16_t update_ms){
+            updateSendStatus();
             // シリアルの受信
             updateCommandRcv();
             // 各モジュールの更新
@@ -33,6 +34,7 @@ namespace BoardManager
             ics.update(update_ms);
             gm6020.update(update_ms);
             motor.update(update_ms);
+            flashFrame();
         }
         void rcvCanMsg(CanMessage& msg){
             if(pwm.rcvCan(msg)) return;
