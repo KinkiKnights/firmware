@@ -84,7 +84,7 @@ namespace BoardManager
                         pos_offset[port_idx] -= 1;
                     }
                     last_pos[port_idx] = now;
-                    pos_offset[port_idx] = pos_offset[port_idx] % 0xFF;
+                    pos_offset[port_idx] = pos_offset[port_idx] % 0x100;
                     feedback_model.fb_posofs[port_idx] = pos_offset[port_idx];
                 }
                 if (feedback_life[port_idx].get()){
